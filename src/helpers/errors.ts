@@ -1,14 +1,40 @@
-export class InvalidColumnNamesError extends Error {
+export class CustomError extends Error {
+  statusCode: number;
   constructor(message: string) {
     super(message);
     this.name = this.constructor.name;
-    Error.captureStackTrace(this, this.constructor);
+    this.statusCode = 500;
   }
 }
-export class DeleteFileError extends Error {
+
+export class InvalidColumnNamesError extends CustomError {
+  statusCode: number;
+
+  constructor(message: string, statusCode: number) {
+    super(message);
+    this.name = this.constructor.name;
+    this.statusCode = statusCode;
+  }
+}
+export class DeleteFileError extends CustomError {
   constructor(message: string) {
     super(message);
     this.name = this.constructor.name;
-    Error.captureStackTrace(this, this.constructor);
+  }
+}
+
+export class ImportError extends CustomError {
+  constructor(message: string) {
+    super(message);
+    this.name = this.constructor.name;
+    this.statusCode = 400;
+  }
+}
+
+export class NotFoundError extends CustomError {
+  constructor(message: string) {
+    super(message);
+    this.name = this.constructor.name;
+    this.statusCode = 404;
   }
 }
