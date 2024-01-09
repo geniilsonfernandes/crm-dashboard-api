@@ -1,6 +1,6 @@
 import express from 'express';
 import { port } from './config/env-validation';
-import router from './modules';
+import router from './http';
 
 const app = express();
 

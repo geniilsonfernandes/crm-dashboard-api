@@ -1,0 +1,34 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model imports {
+    id         String    @unique @default(uuid())
+    name       String
+    created_at DateTime  @default(now())
+    deleted_at DateTime?
+}
+
+model subscriptions {
+    id                   String @unique @default(uuid())
+    periodicity          String
+    billing_quantity     String
+    billing_every_x_days String
+    start_date           String
+    status               String
+    status_date          String
+    cancellation_date    String
+    amount               String
+    next_cycle           String
+    subscriber_id        String
+
+    import_id String
+}
