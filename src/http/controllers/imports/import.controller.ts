@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { ImportError, NotFoundError } from '../../../helpers/Errors';
 import { prisma } from '../../../lib/prisma';
-import processExcel from '../../../utils/processExcel';
+import sanitizeExcel from '../../../utils/sanitizeExcel';
 
 // Calcular MRR para assinantes ativos
 
@@ -14,9 +14,9 @@ class ImportController {
         throw new NotFoundError('File not found');
       }
 
-      const data = await processExcel(file.path);
+      const sanitizeData = await sanitizeExcel(file.path);
 
-      await prisma.$transaction(async (prisma) => {
+      const transaction = await prisma.$transaction(async (prisma) => {
         try {
           const subscriptionsImport = await prisma.imports.create({
             data: {
@@ -24,16 +24,19 @@ class ImportController {
             },
           });
 
-          const addIDs = data.map((entry) => ({
+          const include_import_id = sanitizeData.map((entry) => ({
             ...entry,
             import_id: subscriptionsImport.id,
           }));
 
           await prisma.subscriptions.createMany({
-            data: addIDs,
+            data: include_import_id,
           });
 
-          return 'Transação realizada com sucesso';
+          return {
+            import: subscriptionsImport,
+            subscriptions: include_import_id,
+          };
         } catch (error) {
           throw new ImportError(`Erro ao importar arquivo: ${error}`);
         }
@@ -42,6 +45,8 @@ class ImportController {
       res.status(200).json({
         message: 'Importação concluída',
         code: 200,
+        success: true,
+        inport_id: transaction.import.id,
       });
     } catch (e) {
       next(e);

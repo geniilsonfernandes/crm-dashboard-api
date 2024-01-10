@@ -2,6 +2,7 @@ import ExcelJS from 'exceljs';
 import fs from 'fs';
 
 import { DeleteFileError, InvalidColumnNamesError } from '../helpers/Errors';
+import dayjs from 'dayjs';
 
 type Subscription = {
   periodicity: string;
@@ -16,23 +17,23 @@ type Subscription = {
   subscriber_id: string;
 };
 
-enum ExcelColumnHeaders {
-  'periodicidade' = 'periodicity',
-  'quantidade cobranças' = 'billing_quantity',
-  'cobrada a cada X dias' = 'billing_every_x_days',
-  'data início' = 'start_date',
-  'status' = 'status',
-  'data status' = 'status_date',
-  'data cancelamento' = 'cancellation_date',
-  'valor' = 'amount',
-  'próximo ciclo' = 'next_cycle',
-  'ID assinante' = 'subscriber_id',
-}
+const remmappedColumnNames = {
+  periodicidade: 'periodicity',
+  'quantidade cobranças': 'billing_quantity',
+  'cobrada a cada X dias': 'billing_every_x_days',
+  'data início': 'start_date',
+  status: 'status',
+  'data status': 'status_date',
+  'data cancelamento': 'cancellation_date',
+  valor: 'amount',
+  'próximo ciclo': 'next_cycle',
+  'ID assinante': 'subscriber_id',
+};
 
 function validateColumnNames(columnNames: string[]): void {
   columnNames.forEach((columnName) => {
     const enumKey =
-      ExcelColumnHeaders[columnName as keyof typeof ExcelColumnHeaders];
+      remmappedColumnNames[columnName as keyof typeof remmappedColumnNames];
     if (enumKey === undefined) {
       throw new InvalidColumnNamesError(
         `Nome de coluna inválido: ${columnName}`,
@@ -50,41 +51,53 @@ async function deleteExcelFile(filePath: string): Promise<void> {
   }
 }
 
-async function processExcel(filePath: string) {
+// sanitize data
+async function sanitizeExcel(filePath: string) {
   const workbook = new ExcelJS.Workbook();
 
   await workbook.xlsx.readFile(filePath);
   const worksheet = workbook.worksheets[0];
   const headerRow = worksheet.getRow(1);
   const headers = headerRow.values as string[];
-  const originColumnNames = headers.filter((name) => name !== null);
+  const originalColumnNames = headers.filter((name) => name !== null);
   const data: Subscription[] = [];
 
-  validateColumnNames(originColumnNames);
+  validateColumnNames(originalColumnNames);
 
   worksheet.eachRow((row, rowNumber) => {
     if (rowNumber !== 1) {
       const rowData = {
         periodicity: '',
-        amount: '',
-        billing_every_x_days: '',
-        cancellation_date: '',
         billing_quantity: '',
-        next_cycle: '',
+        billing_every_x_days: '',
         start_date: '',
         status: '',
         status_date: '',
+        cancellation_date: '',
+        amount: '',
+        next_cycle: '',
         subscriber_id: '',
       } as Subscription;
+
       row.eachCell((cell, colNumber) => {
-        const originColumnName = originColumnNames[colNumber - 1];
+        const columnName = originalColumnNames[
+          colNumber - 1
+        ] as keyof typeof remmappedColumnNames;
 
-        const enumKey =
-          ExcelColumnHeaders[
-            originColumnName as keyof typeof ExcelColumnHeaders
-          ];
-
-        rowData[enumKey] = cell?.value?.toString() || '';
+        if (
+          columnName === 'data início' ||
+          columnName === 'data status' ||
+          columnName === 'data cancelamento'
+        ) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (rowData as any)[remmappedColumnNames[columnName]] = cell.value
+            ? dayjs(cell.value as string).toISOString()
+            : 'null';
+        } else {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (rowData as any)[remmappedColumnNames[columnName]] =
+            cell.value?.toString();
+        }
       });
       data.push(rowData);
     }
@@ -93,4 +106,4 @@ async function processExcel(filePath: string) {
   return data;
 }
 
-export default processExcel;
+export default sanitizeExcel;

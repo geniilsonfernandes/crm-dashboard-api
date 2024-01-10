@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import subscriptions from './controllers/subscriptions';
+import analytics from './controllers/analytics';
 import imports from './controllers/imports';
 
 const router: Router = Router();
@@ -9,6 +9,6 @@ const router: Router = Router();
 router.use(imports);
 
 // Subscriptions routes
-router.use('/subscriptions', subscriptions);
+router.use('/analytics', analytics);
 
 export default router;
