@@ -6,6 +6,10 @@ const analytics = Router();
 
 const churnRateController = new ChurnRateController();
 
-analytics.get('/churn-rate', churnRateController.handle);
+analytics.get(
+  '/churn-rate',
+  zodValidate(churnRateSchema),
+  churnRateController.handle
+);
 
 export default analytics;

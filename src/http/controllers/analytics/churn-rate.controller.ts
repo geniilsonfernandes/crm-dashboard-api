@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { prisma } from '../../../lib/prisma';
 import dayjs from 'dayjs';
 import countSubscriptionStatuses from '../../../utils/countSubscriptionStatuses';
+import { NotFoundError } from '../../../helpers/Errors';
 // import dayjs from 'dayjs';
 
 export const churnRateSchema = z.object({
@@ -14,12 +15,15 @@ export const churnRateSchema = z.object({
     date_to: z.string({
       description: 'Date to must be a valid date',
     }),
+    import_id: z.string({
+      description: 'Import id must be a valid uuid',
+    }),
   }),
 });
 
 class ChurnRateController {
   async handle(req: Request, res: Response, next: NextFunction) {
-    const { date_from, date_to } = req.query as z.infer<
+    const { date_from, date_to, import_id } = req.query as z.infer<
       typeof churnRateSchema
     >['query'];
 
@@ -31,13 +35,17 @@ class ChurnRateController {
     try {
       const findImport = await prisma.imports.findFirst({
         where: {
-          id: '0bb3b3a4-1c0b-40e1-9d45-c91ca4fcdfca',
+          id: import_id,
         },
       });
 
+      if (!findImport) {
+        throw new NotFoundError('Import not found');
+      }
+
       const subscriptions = await prisma.subscriptions.findMany({
         where: {
-          import_id: '0bb3b3a4-1c0b-40e1-9d45-c91ca4fcdfca',
+          import_id: import_id,
         },
       });
 
