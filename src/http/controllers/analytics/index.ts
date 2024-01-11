@@ -1,15 +1,15 @@
 import { Router } from 'express';
-import ChurnRateController, { churnRateSchema } from './churn-rate.controller';
+import AnalyticsController, { analyticsSchema } from './analytics.controller';
 import { zodValidate } from '../../../utils/zodValidate';
 
 const analytics = Router();
 
-const churnRateController = new ChurnRateController();
+const analyticsController = new AnalyticsController();
 
 analytics.get(
-  '/churn-rate',
-  zodValidate(churnRateSchema),
-  churnRateController.handle
+  '/analytics',
+  zodValidate(analyticsSchema),
+  analyticsController.handle
 );
 
 export default analytics;

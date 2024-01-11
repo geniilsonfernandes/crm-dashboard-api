@@ -8,7 +8,7 @@ const router: Router = Router();
 // Imports routes
 router.use(imports);
 
-// Subscriptions routes
-router.use('/analytics', analytics);
+// analytics routes
+router.use(analytics);
 
 export default router;
