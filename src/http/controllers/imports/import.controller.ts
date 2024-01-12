@@ -17,13 +17,13 @@ class ImportController {
         throw new NotFoundError('File not found');
       }
 
-      const acceptedExtensions = ['.xlsx', '.csv'];
+      const acceptedFormats = ['csv', 'xlsx'];
 
-      const formart = file.originalname.split('.')[1];
+      const fileFormat = file.originalname.split('.')[1];
 
-      if (!acceptedExtensions.includes(formart)) {
+      if (!acceptedFormats.includes(fileFormat)) {
         throw new FormatNotSupportedError(
-          'Formato de arquivo não suportado, use .xlsx ou .csv'
+          'Formato de arquivo não suportado, envie um arquivo .csv ou .xlsx'
         );
       }
 

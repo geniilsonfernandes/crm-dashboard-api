@@ -5,7 +5,7 @@ import { subscriptions } from '@prisma/client';
 
 const importQueue = new Queue('importQueue', {
   redis: {
-    host: 'localhost',
+    host: 'redis',
     port: 6379,
     maxRetriesPerRequest: 3,
   },
