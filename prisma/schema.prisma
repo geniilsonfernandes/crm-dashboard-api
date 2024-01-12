@@ -10,15 +10,22 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+enum ImportStatus {
+    IN_PROGRESS
+    COMPLETED
+    FAILED
+}
+
 model imports {
-    id         String    @unique @default(uuid())
-    name       String
-    created_at DateTime  @default(now())
-    deleted_at DateTime?
+    id            String    @unique @default(uuid())
+    name          String
+    created_at    DateTime  @default(now())
+    deleted_at    DateTime?
+    import_status String    @map("import_status")
 }
 
 model subscriptions {
-    id                   String   @unique @default(uuid())
+    id                   String @unique @default(uuid())
     periodicity          String
     billing_quantity     String
     billing_every_x_days String
