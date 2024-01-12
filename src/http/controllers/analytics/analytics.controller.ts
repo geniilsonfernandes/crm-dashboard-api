@@ -34,6 +34,35 @@ class AnalyticsController {
         },
       });
 
+      const active_customers_by_plan = subscriptions.reduce(
+        (acc, curr) => {
+          if (curr.status === 'Ativa') {
+            if (!acc[curr.periodicity]) {
+              acc[curr.periodicity] = 0;
+            }
+
+            acc[curr.periodicity] = (acc[curr.periodicity] || 0) + 1;
+          }
+
+          return acc;
+        },
+        {} as { [key: string]: number }
+      );
+
+      const churn_rate_by_plan = subscriptions.reduce(
+        (acc, curr) => {
+          if (curr.status === 'Cancelada') {
+            if (!acc[curr.periodicity]) {
+              acc[curr.periodicity] = 0;
+            }
+
+            acc[curr.periodicity] = (acc[curr.periodicity] || 0) + 1;
+          }
+          return acc;
+        },
+        {} as { [key: string]: number }
+      );
+
       const analytics_raw = countSubscriptionStatuses(subscriptions);
       const analytics = {
         active_customers: analytics_raw.active,
@@ -43,6 +72,9 @@ class AnalyticsController {
         customers_churn_rate:
           (analytics_raw.cancelled / analytics_raw.total) * 100,
         avarage_mrr: avarageMMRSubscriptionsTotals(subscriptions),
+
+        active_customers_by_plan: active_customers_by_plan,
+        churn_rate_by_plan: churn_rate_by_plan,
       };
 
       res.status(200).json({ analytics, inport: findImport });

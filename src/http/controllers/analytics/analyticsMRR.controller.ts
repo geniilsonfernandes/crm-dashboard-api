@@ -44,7 +44,8 @@ class AnalyticsMRRController {
 
       const analytics_MRR = countMRRSubscriptionsByYear(subscriptions, year);
       const analytics = {
-        mrr_by_year: analytics_MRR,
+        mrr_month: analytics_MRR.mrrPerMonth,
+        active_customers_month: analytics_MRR.activeSubscriptionsByMonth,
       };
 
       res.status(200).json({ analytics, inport: findImport });
