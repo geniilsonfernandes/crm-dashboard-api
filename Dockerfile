@@ -12,10 +12,14 @@ ENV DATABASE_URL=$DATABASE_URL
 WORKDIR /usr/src/api
 
 COPY package.json ./
-
 RUN npm install
-COPY . .
 
+
+COPY . .
+RUN npm i -g prisma
+RUN prisma generate
+
+RUN npm run prisma:generate
 RUN npm run build
 
-RUN npm run start
+CMD ["npm", "start"]
