@@ -4,8 +4,9 @@ import { prisma } from '../lib/prisma';
 
 const importQueue = new Queue('importQueue', {
   redis: {
-    host: 'localhost',
+    host: 'redis',
     port: 6379,
+    maxRetriesPerRequest: 3,
   },
 });
 
@@ -42,6 +43,13 @@ importQueue.process(async (job) => {
   return {
     import: import_id,
   };
+});
+importQueue.on('error', (error) => {
+  console.error('Erro na conexão com o Redis:', error);
+});
+
+importQueue.on('active', (job) => {
+  console.log(`Job ${job.id} active`);
 });
 
 importQueue.on('completed', (job) => {

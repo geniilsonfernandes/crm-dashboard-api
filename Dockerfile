@@ -19,6 +19,7 @@ COPY . .
 RUN npm i -g prisma
 RUN prisma generate
 
+
 RUN npm run prisma:generate
 RUN npm run build
 
