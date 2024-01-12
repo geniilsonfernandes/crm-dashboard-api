@@ -82,9 +82,26 @@ export function countMRRSubscriptionsByYear(
   year_query: string
 ) {
   const mrrPerMonth: number[] = Array(12).fill(0);
+  const chrunRatePerMonth: number[] = Array(12).fill(0);
   const activeSubscriptionsByMonth: number[] = Array(12).fill(0);
 
+  const isDesactiveSubscription = (sub: subscriptions) => {
+    return sub.status === 'Cancelada';
+  };
+
   subscriptions.forEach((subscription) => {
+    if (isDesactiveSubscription(subscription)) {
+      const { cancellation_date } = subscription;
+
+      if (cancellation_date) {
+        const calculationDate = dayjs(cancellation_date);
+
+        if (calculationDate.year() === parseFloat(year_query)) {
+          chrunRatePerMonth[calculationDate.month()] += 1;
+        }
+      }
+    }
+
     if (isActiveSubscription(subscription)) {
       const { periodicity } = subscription;
 
@@ -112,6 +129,7 @@ export function countMRRSubscriptionsByYear(
   return {
     mrrPerMonth: mrrPerMonth.map((value) => Math.floor(value)),
     activeSubscriptionsByMonth,
+    chrunRatePerMonth,
   };
 }
 

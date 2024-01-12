@@ -1,5 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
-import { NotFoundError } from '../../../helpers/Errors';
+import {
+  FormatNotSupportedError,
+  NotFoundError,
+} from '../../../helpers/Errors';
 import { prisma } from '../../../lib/prisma';
 import importQueue from '../../../queue/queue';
 
@@ -12,6 +15,16 @@ class ImportController {
 
       if (!file) {
         throw new NotFoundError('File not found');
+      }
+
+      const acceptedExtensions = ['.xlsx', '.csv'];
+
+      const formart = file.originalname.split('.')[1];
+
+      if (!acceptedExtensions.includes(formart)) {
+        throw new FormatNotSupportedError(
+          'Formato de arquivo não suportado, use .xlsx ou .csv'
+        );
       }
 
       const subscriptionsImport = await prisma.imports.create({

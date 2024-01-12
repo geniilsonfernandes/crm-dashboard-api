@@ -38,3 +38,11 @@ export class NotFoundError extends CustomError {
     this.statusCode = 404;
   }
 }
+
+export class FormatNotSupportedError extends CustomError {
+  constructor(message: string) {
+    super(message);
+    this.name = this.constructor.name;
+    this.statusCode = 400;
+  }
+}

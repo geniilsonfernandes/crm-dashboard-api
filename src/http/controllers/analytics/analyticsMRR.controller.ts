@@ -46,9 +46,10 @@ class AnalyticsMRRController {
       const analytics = {
         mrr_month: analytics_MRR.mrrPerMonth,
         active_customers_month: analytics_MRR.activeSubscriptionsByMonth,
+        chrunRatePerMonth: analytics_MRR.chrunRatePerMonth,
       };
 
-      res.status(200).json({ analytics, inport: findImport });
+      res.status(200).json({ analytics, inport: findImport, subscriptions });
     } catch (e) {
       next(e);
     }
