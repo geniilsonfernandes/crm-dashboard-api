@@ -34,6 +34,10 @@ class ImportController {
         },
       });
 
+      if (!subscriptionsImport) {
+        throw new NotFoundError('Importa não iniciada');
+      }
+
       importQueue.add({ import_id: subscriptionsImport.id, file });
 
       res.status(200).json({
